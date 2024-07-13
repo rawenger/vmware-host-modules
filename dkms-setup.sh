@@ -124,12 +124,6 @@ echo "Detected VMware ${VMWARE_PRODUCT} version ${VMWARE_VERNUM}."
 [ ${RM_OUTDATED-0} -eq 1 ] && remove_outdated
 
 pushd "${SCRIPT_PATH}"
-git fetch
-git checkout "$PKG_VER"
-[ $? -eq 0 ] || die "VMware $VMWARE_PRODUCT $VMWARE_VERNUM is not supported. \
-                     Note that for versions >= 17.0, you should set VMWARE_PRODUCT \
-                     to 'workstation' regardless of which you're using."
-popd
 
 echo "Generating dkms.conf..."
 sed -e "s/@PKG_VER@/${PKG_VER}/" \
@@ -137,6 +131,13 @@ sed -e "s/@PKG_VER@/${PKG_VER}/" \
         "${SCRIPT_PATH}/dkms.conf.in" \
     > "${SCRIPT_PATH}/dkms.conf"
 [ $? -eq 0 ] || die "Unable to generate dkms.conf"
+
+git fetch
+git checkout "$PKG_VER"
+[ $? -eq 0 ] || die "VMware $VMWARE_PRODUCT $VMWARE_VERNUM is not supported. \
+                     Note that for versions >= 17.0, you should set VMWARE_PRODUCT \
+                     to 'workstation' regardless of which you're using."
+popd
 
 echo "Setting up DKMS build system..."
 # `dkms add` will fail with 3 if we're already added for a different kversion
